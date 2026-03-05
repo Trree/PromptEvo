@@ -1,0 +1,45 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+// 1. Prompt 提示词表
+model Prompt {
+  id          String   @id @default(uuid())
+  name        String   @unique // 唯一标识符，如 "code-reviewer"
+  title       String   // 显示名称，如 "代码审查助手"
+  content     String   // 原始 Prompt 文本，支持 {{variable}} 语法
+  description String?  // 详细描述
+  category    String?  // 分类：Coding, Writing, Creative...
+  tags        String?  // 逗号分隔或 JSON 字符串
+  version     Int      @default(1)
+  
+  // 提取出的变量名，存储为 JSON 数组，如 ["language", "code"]
+  variables   String   @default("[]") 
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// 2. Skill 工具表 (Function Calling)
+model Skill {
+  id          String   @id @default(uuid())
+  name        String   @unique // 工具名称，如 "get_weather"
+  description String   // 核心描述，LLM 依靠这个来决定是否调用
+  
+  // 完整的 Manifest JSON，包含 parameters 定义
+  manifest    String   
+  
+  // 实现逻辑的存放位置
+  codePath    String?  // 例如: "src/tools/weather.ts"
+  type        String   @default("local") // local, api, builtin
+  
+  isActive    Boolean  @default(true) // 是否启用
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
