@@ -22,7 +22,7 @@ html, body, #root {
 }
 
 body {
-  @apply bg-[#F8FAFC] text-slate-900 font-sans antialiased;
+  @apply bg-[#F6F4F1] text-slate-900 font-sans antialiased;
 }
 
 /* Custom Scrollbar - YouWare Style */

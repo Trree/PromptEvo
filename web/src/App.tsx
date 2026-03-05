@@ -13,6 +13,7 @@ const queryClient = new QueryClient();
 const api = axios.create({ baseURL: 'http://192.210.243.20:3000/api' });
 
 const CATEGORIES = ['All', 'Coding', 'Marketing', 'Business', 'Creative', 'General'];
+const CATEGORY_OPTIONS = ['Coding', 'Marketing', 'Business', 'Creative', 'General'];
 
 // ─── Editor View ─────────────────────────────────────────────────────────────
 
@@ -58,6 +59,15 @@ const EditorView = ({
           className="text-3xl font-black text-gray-900 border-none outline-none w-full placeholder:text-gray-200"
           placeholder="Give it a title..."
         />
+        <select
+          value={draft.category || 'General'}
+          onChange={(e) => setDraft({ ...draft, category: e.target.value })}
+          className="text-sm text-gray-600 border border-gray-200 rounded-lg px-3 py-1.5 outline-none focus:border-gray-400 bg-white cursor-pointer"
+        >
+          {CATEGORY_OPTIONS.map((cat) => (
+            <option key={cat} value={cat}>{cat}</option>
+          ))}
+        </select>
         <textarea
           value={draft[contentKey] || ''}
           onChange={(e) => setDraft({ ...draft, [contentKey]: e.target.value })}
@@ -88,7 +98,7 @@ const TemplateCard = ({
   return (
     <div className="flex flex-col gap-2.5 group cursor-pointer" onClick={onClick}>
       {/* Content preview */}
-      <div className="relative aspect-[4/3] rounded-2xl overflow-hidden border border-gray-200 bg-gray-50 group-hover:shadow-lg group-hover:-translate-y-0.5 transition-all duration-200">
+      <div className="relative aspect-[4/3] rounded-2xl overflow-hidden border border-[#E8E5E0] bg-[#EDEAE6] group-hover:shadow-lg group-hover:-translate-y-0.5 transition-all duration-200">
         {/* Category tag */}
         <div className="absolute top-3 left-3 z-10">
           <span className="text-[10px] font-bold uppercase tracking-wider bg-white border border-gray-200 text-gray-600 px-2 py-0.5 rounded-md shadow-sm">
@@ -104,7 +114,7 @@ const TemplateCard = ({
         </div>
 
         {/* Fade out at bottom */}
-        <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-gray-50 to-transparent pointer-events-none" />
+        <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-[#EDEAE6] to-transparent pointer-events-none" />
 
         {/* Hover overlay */}
         <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
@@ -171,9 +181,9 @@ const MainApp = () => {
   }
 
   return (
-    <div className="min-h-screen bg-white flex text-gray-900 font-sans">
+    <div className="min-h-screen bg-[#F6F4F1] flex text-gray-900 font-sans">
       {/* ── Sidebar ── */}
-      <aside className="w-52 border-r border-gray-200 flex flex-col h-screen sticky top-0 bg-white shrink-0">
+      <aside className="w-52 border-r border-[#E8E5E0] flex flex-col h-screen sticky top-0 bg-[#F6F4F1] shrink-0">
         {/* Logo */}
         <div className="px-4 py-4 flex items-center gap-2">
           <div className="w-7 h-7 bg-black rounded-lg flex items-center justify-center shrink-0">
@@ -184,7 +194,7 @@ const MainApp = () => {
               <rect x="7.5" y="7.5" width="4.5" height="4.5" rx="1" fill="white" />
             </svg>
           </div>
-          <span className="font-bold text-[15px] tracking-tight text-gray-900">YouWare</span>
+          <span className="font-bold text-[15px] tracking-tight text-gray-900">OpenPrompt</span>
         </div>
 
         <div className="flex-1" />
@@ -193,7 +203,7 @@ const MainApp = () => {
         <div className="p-4">
           <button
             onClick={() =>
-              setSelectedItem({ name: '', title: '', content: '', description: '', category: 'General' })
+              setSelectedItem({ name: `${contentType}-${Date.now()}`, title: '', content: '', description: '', category: 'General' })
             }
             className="w-full bg-black text-white rounded-xl py-2.5 text-sm font-semibold flex items-center justify-center gap-1.5 hover:bg-gray-800 active:scale-95 transition-all"
           >
@@ -208,7 +218,7 @@ const MainApp = () => {
         <div className="px-8 py-7">
           {/* Heading + type toggle */}
           <div className="flex items-center justify-between mb-5">
-            <h1 className="text-[28px] font-black text-gray-900 tracking-tight">Templates</h1>
+            <h1 className="text-[28px] font-black text-gray-900 tracking-tight"></h1>
             <div className="flex bg-gray-100 p-1 rounded-lg gap-0.5">
               <button
                 onClick={() => setContentType('prompts')}
