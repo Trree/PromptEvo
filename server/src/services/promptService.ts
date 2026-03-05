@@ -24,28 +24,27 @@ export const promptService = {
   }) {
     const variables = JSON.stringify(extractVariables(data.content))
 
-    // 查找现有记录
-    const existing = await prisma.prompt.findUnique({ where: { name: data.name } })
+    return prisma.$transaction(async (tx) => {
+      const existing = await tx.prompt.findUnique({ where: { name: data.name } })
 
-    if (existing) {
-      // 先保存当前版本快照
-      await prisma.promptVersion.create({
-        data: {
-          promptId: existing.id,
-          version: existing.version,
-          content: existing.content,
-          variables: existing.variables,
-        },
-      })
-      // 更新 prompt，版本号 +1
-      return prisma.prompt.update({
-        where: { name: data.name },
-        data: { ...data, variables, version: { increment: 1 } },
-      })
-    }
+      if (existing) {
+        await tx.promptVersion.create({
+          data: {
+            promptId: existing.id,
+            version: existing.version,
+            content: existing.content,
+            variables: existing.variables,
+          },
+        })
+        return tx.prompt.update({
+          where: { name: data.name },
+          data: { ...data, variables, version: { increment: 1 } },
+        })
+      }
 
-    return prisma.prompt.create({
-      data: { ...data, variables },
+      return tx.prompt.create({
+        data: { ...data, variables },
+      })
     })
   },
 
