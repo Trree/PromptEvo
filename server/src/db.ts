@@ -1,18 +1,28 @@
-// server/src/services/promptService.ts
-import { prisma } from '../lib/prisma'
+import { PrismaClient } from '@prisma/client'
 
-function extractVariables(content: string): string[] {
+export const prisma = new PrismaClient()
+
+// --- Prompt Logic ---
+
+export function extractVariables(content: string): string[] {
   const matches = content.matchAll(/\{\{(\w+)\}\}/g)
   return Array.from(new Set(Array.from(matches, (m) => m[1])))
 }
 
-export const promptService = {
+export const promptDb = {
   async findAll() {
     return prisma.prompt.findMany({ orderBy: { updatedAt: 'desc' } })
   },
 
   async findById(id: string) {
     return prisma.prompt.findUnique({ where: { id } })
+  },
+
+  async findVersions(id: string) {
+    return prisma.promptVersion.findMany({
+      where: { promptId: id },
+      orderBy: { version: 'desc' },
+    })
   },
 
   async upsert(data: {
@@ -51,11 +61,31 @@ export const promptService = {
   async deleteById(id: string) {
     return prisma.prompt.delete({ where: { id } })
   },
+}
 
-  async findVersions(id: string) {
-    return prisma.promptVersion.findMany({
-      where: { promptId: id },
-      orderBy: { version: 'desc' },
+// --- Skill Logic ---
+
+export const skillDb = {
+  async findAll() {
+    return prisma.skill.findMany({ orderBy: { updatedAt: 'desc' } })
+  },
+
+  async upsert(data: {
+    name: string
+    description: string
+    manifest: string
+    codePath?: string
+    type?: string
+    isActive?: boolean
+  }) {
+    return prisma.skill.upsert({
+      where: { name: data.name },
+      update: data,
+      create: data,
     })
+  },
+
+  async deleteById(id: string) {
+    return prisma.skill.delete({ where: { id } })
   },
 }
