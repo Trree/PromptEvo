@@ -19,10 +19,7 @@ import {
   Eye,
   Heart,
   GitFork,
-  Flower2,
-  Cloud,
-  Moon,
-  Sun
+  MoreHorizontal
 } from 'lucide-react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
@@ -74,41 +71,41 @@ const MainApp = () => {
     },
   });
 
-  // 编辑器视图
+  // 如果有选中项，显示编辑器视图
   if (selectedItem) {
     return (
-      <div className="min-h-screen bg-cream-50 flex flex-col animate-in fade-in duration-500">
-        <header className="h-16 border-b border-fresh-100 flex items-center justify-between px-6 bg-white/70 backdrop-blur-xl sticky top-0 z-20">
+      <div className="min-h-screen bg-white flex flex-col animate-in fade-in duration-500">
+        <header className="h-16 border-b flex items-center justify-between px-6 bg-white/80 backdrop-blur-xl sticky top-0 z-20">
           <div className="flex items-center gap-4">
-            <button onClick={() => setSelectedItem(null)} className="p-2 hover:bg-fresh-50 rounded-full transition-colors group">
-              <ChevronLeft className="w-5 h-5 text-fresh-600 group-hover:-translate-x-1 transition-transform" />
+            <button onClick={() => setSelectedItem(null)} className="p-2 hover:bg-slate-100 rounded-full transition-colors">
+              <ChevronLeft className="w-5 h-5 text-slate-500" />
             </button>
             <div className="flex flex-col">
-              <h1 className="text-sm font-semibold text-slate-700">{selectedItem.title || 'Untitled'}</h1>
-              <p className="text-[10px] font-mono text-fresh-600 uppercase tracking-widest">{selectedItem.name || 'New'}</p>
+              <h1 className="text-sm font-bold text-slate-900 leading-none mb-1">{selectedItem.title || 'Untitled'}</h1>
+              <p className="text-[10px] font-mono text-slate-400 uppercase tracking-tighter">{selectedItem.name || 'New'}</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
             <button 
               onClick={() => saveMutation.mutate(selectedItem)}
-              className="bg-fresh-500 text-white px-6 py-2 rounded-2xl text-sm font-semibold shadow-lg shadow-fresh-500/10 hover:bg-fresh-600 hover:shadow-fresh-500/20 active:scale-95 transition-all flex items-center gap-2"
+              className="bg-brand-600 text-white px-5 py-2 rounded-xl text-sm font-bold shadow-lg shadow-brand-600/20 hover:bg-brand-700 active:scale-95 transition-all flex items-center gap-2"
             >
               <Save className="w-4 h-4" /> Save
             </button>
           </div>
         </header>
-        <main className="flex-1 max-w-5xl mx-auto w-full p-8 md:p-12 space-y-10">
+        <main className="flex-1 max-w-5xl mx-auto w-full p-8 space-y-8">
            <input 
               value={selectedItem.title || ''}
               onChange={(e) => setSelectedItem({...selectedItem, title: e.target.value})}
-              className="text-4xl font-bold tracking-tight text-slate-800 border-none outline-none focus:ring-0 w-full placeholder:text-fresh-100 bg-transparent"
-              placeholder="Template name..."
+              className="text-4xl font-bold tracking-tight text-slate-900 border-none outline-none focus:ring-0 w-full placeholder:text-slate-200"
+              placeholder="Give it a title..."
             />
             <textarea 
               value={selectedItem.content || ''}
               onChange={(e) => setSelectedItem({...selectedItem, content: e.target.value})}
-              placeholder="Start writing..."
-              className="w-full min-h-[550px] bg-white/60 border border-fresh-100 rounded-[2.5rem] p-10 outline-none focus:bg-white focus:ring-8 focus:ring-fresh-50/50 focus:border-fresh-200 transition-all font-mono text-sm leading-relaxed text-slate-600 shadow-soft"
+              placeholder="Write your prompt or skill configuration here..."
+              className="w-full min-h-[500px] bg-slate-50 border border-slate-100 rounded-3xl p-8 outline-none focus:bg-white focus:ring-4 focus:ring-brand-50/50 focus:border-brand-200 transition-all font-mono text-sm leading-relaxed"
             />
         </main>
       </div>
@@ -116,94 +113,92 @@ const MainApp = () => {
   }
 
   return (
-    <div className="min-h-screen bg-cream-50 flex text-slate-700 font-sans selection:bg-fresh-100 selection:text-fresh-700">
-      {/* 侧边栏 - 小清新风格：浅绿配奶油白 */}
-      <aside className="w-64 border-r border-fresh-100 flex flex-col h-screen sticky top-0 bg-white/50 backdrop-blur-xl z-10">
-        <div className="p-8 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-2xl bg-fresh-100 flex items-center justify-center shadow-sm">
-              <Flower2 className="w-5 h-5 text-fresh-600 animate-pulse" />
+    <div className="min-h-screen bg-[#FAFAFA] flex text-[#1A1A1A] font-sans">
+      {/* 侧边栏 */}
+      <aside className="w-64 border-r border-slate-100 flex flex-col h-screen sticky top-0 bg-white shadow-[1px_0_10px_rgba(0,0,0,0.02)] z-10">
+        <div className="p-6 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-brand-600 flex items-center justify-center shadow-md shadow-brand-600/20">
+              <Zap className="w-4 h-4 text-white" />
             </div>
-            <div className="font-bold text-lg tracking-tight text-slate-800">Minty</div>
+            <div className="font-bold text-lg tracking-tight text-slate-900">YouWare</div>
           </div>
-          <PanelLeft className="w-4 h-4 text-fresh-300 cursor-pointer hover:text-fresh-600" />
+          <PanelLeft className="w-4 h-4 text-slate-400 cursor-pointer hover:text-slate-900" />
         </div>
 
-        <nav className="flex-1 px-4 space-y-2 mt-4">
-          <NavItem icon={<Cloud className="w-5 h-5" />} label="Explore" active />
+        <nav className="flex-1 px-4 space-y-1 mt-2">
+          <NavItem icon={<Compass className="w-5 h-5" />} label="Explore" active />
           <NavItem icon={<Layout className="w-5 h-5" />} label="Templates" />
-          <NavItem icon={<Sun className="w-5 h-5" />} label="Highlights" />
-          <div className="h-6" />
-          <div className="text-[10px] font-bold text-fresh-300 uppercase tracking-[0.2em] px-3 mb-2">Workspace</div>
-          <NavItem icon={<FolderOpen className="w-5 h-5" />} label="Projects" />
-          <NavItem icon={<Moon className="w-5 h-5" />} label="Archives" />
+          <NavItem icon={<FlaskConical className="w-5 h-5" />} label="Labs" />
+          <div className="h-4" />
+          <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-3 mb-2">My Workspace</div>
+          <NavItem icon={<FolderOpen className="w-5 h-5" />} label="My Projects" />
+          <NavItem icon={<Users className="w-5 h-5" />} label="Community" />
         </nav>
 
-        <div className="p-6">
-          <div className="bg-fresh-50 rounded-3xl p-4 flex items-center gap-4 border border-fresh-100/50">
-            <div className="w-10 h-10 rounded-2xl bg-white shadow-sm flex items-center justify-center text-sm font-bold text-fresh-500">JD</div>
+        <div className="p-5 border-t border-slate-100 bg-slate-50/50">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-purple-500 to-indigo-500 border-2 border-white shadow-sm" />
             <div className="flex flex-col">
-              <span className="text-sm font-semibold text-slate-700">John</span>
-              <span className="text-[10px] text-fresh-500 font-bold uppercase">Standard</span>
+              <span className="text-sm font-bold text-slate-900">John Doe</span>
+              <span className="text-xs text-slate-500 font-medium">1,250 Credits</span>
             </div>
           </div>
         </div>
       </aside>
 
-      {/* 主内容区域 */}
-      <main className="flex-1 flex flex-col h-screen overflow-y-auto custom-scrollbar">
-        <header className="sticky top-0 z-10 bg-cream-50/80 backdrop-blur-xl border-b border-fresh-100/30 pt-8 pb-6 px-12 flex flex-col gap-8">
+      {/* 主内容区域 - Explore Style */}
+      <main className="flex-1 flex flex-col h-screen overflow-y-auto">
+        {/* 顶部搜索与分类 */}
+        <header className="sticky top-0 z-10 bg-white/80 backdrop-blur-xl border-b border-slate-100 pt-6 pb-4 px-10 flex flex-col gap-6">
           <div className="flex items-center justify-between">
-            <div className="space-y-1">
-              <h1 className="text-3xl font-bold tracking-tight text-slate-800">Good morning</h1>
-              <p className="text-sm text-fresh-600 font-medium italic">"Every prompt is a new flower in your garden."</p>
-            </div>
-            
+            <h1 className="text-3xl font-black tracking-tight text-slate-900">Explore</h1>
             <div className="flex items-center gap-4">
-              <div className="flex bg-white/50 border border-fresh-100 p-1 rounded-2xl shadow-sm">
+              {/* Type Switcher */}
+              <div className="flex bg-slate-100 p-1 rounded-xl">
                 <button 
                   onClick={() => setActiveTab('prompts')}
-                  className={cn("px-5 py-2 rounded-xl text-xs font-bold transition-all", activeTab === 'prompts' ? "bg-white shadow-sm text-fresh-600" : "text-slate-400 hover:text-slate-600")}
+                  className={cn("px-4 py-1.5 rounded-lg text-sm font-bold transition-all", activeTab === 'prompts' ? "bg-white shadow-sm text-slate-900" : "text-slate-500 hover:text-slate-700")}
                 >
                   Prompts
                 </button>
                 <button 
                   onClick={() => setActiveTab('skills')}
-                  className={cn("px-5 py-2 rounded-xl text-xs font-bold transition-all", activeTab === 'skills' ? "bg-white shadow-sm text-fresh-600" : "text-slate-400 hover:text-slate-600")}
+                  className={cn("px-4 py-1.5 rounded-lg text-sm font-bold transition-all", activeTab === 'skills' ? "bg-white shadow-sm text-slate-900" : "text-slate-500 hover:text-slate-700")}
                 >
                   Skills
                 </button>
               </div>
               <button 
                 onClick={() => setSelectedItem({ name: '', title: '', content: '', description: '', category: 'General' })}
-                className="bg-fresh-500 text-white px-6 py-2.5 rounded-2xl text-xs font-bold hover:bg-fresh-600 transition-all shadow-lg shadow-fresh-500/10"
+                className="bg-brand-600 text-white px-5 py-2 rounded-xl text-sm font-bold hover:bg-brand-700 transition-all shadow-md shadow-brand-600/20"
               >
-                + Create New
+                + New {activeTab === 'prompts' ? 'Prompt' : 'Skill'}
               </button>
             </div>
           </div>
 
-          <div className="flex flex-col gap-6">
-            <div className="relative group w-full max-w-xl">
-              <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-fresh-300 group-focus-within:text-fresh-500 transition-colors" />
+          <div className="flex flex-col gap-4">
+            <div className="relative group w-full max-w-2xl">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-brand-500 transition-colors" />
               <input 
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Find your creations..."
-                className="w-full bg-white border border-fresh-100 rounded-2xl pl-12 pr-6 py-3 text-sm outline-none focus:ring-8 focus:ring-fresh-50/50 focus:border-fresh-200 transition-all placeholder:text-fresh-200 font-medium shadow-sm"
+                placeholder="Search the community..."
+                className="w-full bg-slate-100/50 border border-slate-200 rounded-2xl pl-12 pr-4 py-3 text-sm outline-none focus:bg-white focus:ring-4 focus:ring-brand-50 focus:border-brand-300 transition-all placeholder:text-slate-400 font-medium"
               />
             </div>
             
-            <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide">
+            <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide pb-2">
               {categories.map((cat) => (
                 <button 
                   key={cat}
                   onClick={() => setActiveCategory(cat)}
                   className={cn(
-                    "px-5 py-2 rounded-full text-xs font-bold transition-all whitespace-nowrap border",
+                    "px-4 py-1.5 rounded-full text-sm font-bold transition-all whitespace-nowrap",
                     activeCategory === cat 
-                      ? "bg-fresh-500 text-white border-fresh-500 shadow-md shadow-fresh-500/10" 
-                      : "bg-white text-slate-400 border-fresh-100 hover:border-fresh-300 hover:text-slate-600"
+                      ? "bg-slate-900 text-white shadow-md" 
+                      : "bg-white text-slate-600 border border-slate-200 hover:border-slate-300 hover:bg-slate-50"
                   )}
                 >
                   {cat}
@@ -213,17 +208,17 @@ const MainApp = () => {
           </div>
         </header>
 
-        {/* 模板网格 - 小清新卡片 */}
-        <div className="p-12">
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-10">
+        {/* 社区 Feed 网格 - Dribbble/YouWare Explore 风格 */}
+        <div className="p-10">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-8">
             {filteredItems.map((item: any) => (
-              <FreshCard key={item.id} item={item} onClick={() => setSelectedItem(item)} activeTab={activeTab} />
+              <ExploreCard key={item.id} item={item} onClick={() => setSelectedItem(item)} activeTab={activeTab} />
             ))}
             
             {filteredItems.length === 0 && (
-              <div className="col-span-full py-24 flex flex-col items-center justify-center text-fresh-200">
-                <Flower2 className="w-16 h-16 mb-4 opacity-50 animate-bounce" />
-                <p className="text-lg font-bold">The garden is empty</p>
+              <div className="col-span-full py-20 flex flex-col items-center justify-center text-slate-400">
+                <Search className="w-12 h-12 mb-4 opacity-20" />
+                <p className="text-lg font-medium">No projects found</p>
               </div>
             )}
           </div>
@@ -235,74 +230,88 @@ const MainApp = () => {
 
 const NavItem = ({ icon, label, active = false }: { icon: any, label: string, active?: boolean }) => (
   <div className={cn(
-    "flex items-center gap-3 px-4 py-3 rounded-2xl cursor-pointer transition-all text-sm font-semibold",
-    active ? "bg-fresh-100/50 text-fresh-700" : "text-slate-400 hover:bg-white hover:text-fresh-600 hover:shadow-sm"
+    "flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer transition-all text-sm font-bold",
+    active ? "bg-brand-50 text-brand-700" : "text-slate-500 hover:bg-slate-100 hover:text-slate-900"
   )}>
     {icon}
     <span>{label}</span>
   </div>
 );
 
-const FreshCard = ({ item, onClick, activeTab }: { item: any, onClick: () => void, activeTab: string }) => {
-  const views = useMemo(() => Math.floor(Math.random() * 200) + 10, []);
-  const likes = useMemo(() => Math.floor(Math.random() * 50) + 5, []);
+const ExploreCard = ({ item, onClick, activeTab }: { item: any, onClick: () => void, activeTab: string }) => {
+  // 生成随机统计数据和配色
+  const views = useMemo(() => Math.floor(Math.random() * 5000) + 100, []);
+  const likes = useMemo(() => Math.floor(Math.random() * 1000) + 10, []);
   
-  const colors = [
-    'bg-sky-50 text-sky-500 border-sky-100',
-    'bg-fresh-50 text-fresh-500 border-fresh-100',
-    'bg-petal-50 text-petal-500 border-petal-100',
-    'bg-lavender-50 text-lavender-500 border-lavender-100'
+  const gradients = [
+    'from-blue-500 to-cyan-400',
+    'from-indigo-500 to-purple-500',
+    'from-emerald-400 to-teal-500',
+    'from-orange-400 to-rose-400',
+    'from-slate-800 to-slate-900',
+    'from-pink-500 to-rose-500'
   ];
-  const colorScheme = useMemo(() => colors[Math.floor(Math.random() * colors.length)], []);
+  const bgGradient = useMemo(() => gradients[Math.floor(Math.random() * gradients.length)], []);
 
   return (
-    <div className="group flex flex-col gap-4">
+    <div className="group flex flex-col gap-3">
+      {/* 卡片预览区 */}
       <div 
-        className={cn(
-          "relative aspect-square rounded-[2.5rem] overflow-hidden cursor-pointer shadow-soft group-hover:shadow-fresh-hover group-hover:-translate-y-2 transition-all duration-500 border-2 border-white flex items-center justify-center p-8",
-          colorScheme.split(' ')[0]
-        )}
+        className="relative aspect-[4/3] rounded-3xl overflow-hidden bg-slate-100 cursor-pointer shadow-sm group-hover:shadow-xl group-hover:-translate-y-1 transition-all duration-300 border border-slate-200/60"
         onClick={onClick}
       >
-        <div className="flex flex-col items-center text-center gap-6">
-          <div className={cn("w-14 h-14 rounded-2xl bg-white shadow-sm flex items-center justify-center", colorScheme.split(' ')[1])}>
-            {activeTab === 'prompts' ? <Layers className="w-6 h-6" /> : <Code2 className="w-6 h-6" />}
-          </div>
-          <div className="space-y-2">
-            <h3 className="text-xl font-bold text-slate-700 leading-tight">
-              {item.title || item.name}
-            </h3>
-            <span className={cn("text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full border bg-white/50", colorScheme.split(' ')[2])}>
+        <div className={cn("absolute inset-0 bg-gradient-to-br opacity-10", bgGradient)} />
+        
+        <div className="absolute inset-0 p-6 flex flex-col">
+          <div className="flex justify-between items-start">
+            <span className="bg-white/90 backdrop-blur-sm text-slate-800 text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg shadow-sm">
               {item.category || 'General'}
             </span>
+            <div className={cn(
+              "w-8 h-8 rounded-xl flex items-center justify-center shadow-sm bg-white/90 backdrop-blur-sm",
+              activeTab === 'prompts' ? "text-brand-600" : "text-emerald-600"
+            )}>
+              {activeTab === 'prompts' ? <Layers className="w-4 h-4" /> : <Code2 className="w-4 h-4" />}
+            </div>
+          </div>
+          
+          <div className="mt-auto">
+             <h3 className="text-2xl font-black text-slate-900 leading-tight line-clamp-2">
+              {item.title || item.name}
+            </h3>
+            <p className="text-sm font-medium text-slate-600 mt-2 line-clamp-2">
+              {item.description || "A powerful configuration for your AI workflow."}
+            </p>
           </div>
         </div>
 
-        {/* 悬浮操作 */}
-        <div className="absolute inset-0 bg-white/40 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center backdrop-blur-[4px]">
-          <button className="bg-white text-fresh-600 font-bold px-8 py-3 rounded-full shadow-lg flex items-center gap-2 transform translate-y-6 group-hover:translate-y-0 transition-all duration-500 hover:scale-105 active:scale-95">
-            <GitFork className="w-4 h-4" /> Open
+        <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center backdrop-blur-[2px]">
+          <button className="bg-white text-slate-900 font-bold px-6 py-2.5 rounded-full shadow-xl flex items-center gap-2 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 hover:scale-105">
+            <GitFork className="w-4 h-4" /> Remix
           </button>
         </div>
       </div>
 
-      {/* 底部小清新元数据 */}
-      <div className="flex items-center justify-between px-2">
-        <div className="flex items-center gap-2">
-          <div className="w-2 h-2 rounded-full bg-fresh-500" />
-          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-            {item.name.slice(0, 10)}
+      {/* 卡片底部元数据 */}
+      <div className="flex items-center justify-between px-1 mt-1">
+        <div className="flex items-center gap-2.5 cursor-pointer group/user">
+          <div className="w-6 h-6 rounded-full bg-gradient-to-br from-indigo-100 to-purple-100 flex items-center justify-center border border-slate-200">
+            <span className="text-[10px] font-bold text-indigo-700">AI</span>
+          </div>
+          <span className="text-sm font-bold text-slate-900 group-hover/user:text-brand-600 transition-colors">
+            {item.name.split('-')[0] || 'Creator'}
           </span>
+          <span className="text-xs text-slate-400 font-medium px-1.5 py-0.5 bg-slate-100 rounded-md">PRO</span>
         </div>
         
-        <div className="flex items-center gap-4 text-[10px] font-bold text-fresh-300">
-          <div className="flex items-center gap-1.5 hover:text-petal-500 transition-colors cursor-pointer">
-            <Heart className="w-3 h-3" />
-            <span>{likes}</span>
+        <div className="flex items-center gap-3 text-xs font-bold text-slate-400">
+          <div className="flex items-center gap-1 hover:text-slate-600 transition-colors cursor-pointer">
+            <Heart className="w-3.5 h-3.5" />
+            <span>{(likes / 1000).toFixed(1)}k</span>
           </div>
-          <div className="flex items-center gap-1.5 hover:text-fresh-500 transition-colors cursor-pointer">
-            <Eye className="w-3 h-3" />
-            <span>{views}</span>
+          <div className="flex items-center gap-1 hover:text-slate-600 transition-colors cursor-pointer">
+            <Eye className="w-3.5 h-3.5" />
+            <span>{(views / 1000).toFixed(1)}k</span>
           </div>
         </div>
       </div>

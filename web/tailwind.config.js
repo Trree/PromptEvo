@@ -7,41 +7,48 @@ export default {
   theme: {
     extend: {
       colors: {
-        fresh: {
-          50: '#F0FDF4', // Mint white
-          100: '#DCFCE7', // Soft mint
-          200: '#BBF7D0',
-          500: '#10B981', // Sage/Mint primary
-          600: '#059669',
-          700: '#047857',
+        brand: {
+          50: '#F5F7FF',
+          100: '#EBEEFF',
+          200: '#DDE2FF',
+          300: '#C2C9FF',
+          400: '#9BA3FF',
+          500: '#6366F1', // Indigo primary
+          600: '#4F46E5',
+          700: '#4338CA',
+          800: '#3730A3',
+          900: '#312E81',
+          950: '#0F172A', // Deep navy
         },
-        sky: {
-          50: '#F0F9FF',
-          100: '#E0F2FE',
-          500: '#0EA5E9',
-        },
-        petal: {
-          50: '#FFF1F2', // Soft pink
-          100: '#FFE4E6',
-          500: '#F43F5E',
-        },
-        lavender: {
-          50: '#F5F3FF',
-          100: '#EDE9FE',
-          500: '#8B5CF6',
-        },
-        cream: {
-          50: '#FDFCFB', // Warm off-white
-          100: '#F7F4F1',
+        surface: {
+          50: '#F8FAFC',
+          100: '#F1F5F9',
+          200: '#E2E8F0',
+          300: '#CBD5E1',
+          400: '#94A3B8',
+          500: '#64748B',
+          600: '#475569',
+          700: '#334155',
+          800: '#1E293B',
+          900: '#0F172A',
         }
       },
       borderRadius: {
-        '3xl': '1.8rem',
-        '4xl': '2.5rem',
+        '3xl': '1.5rem',
+        '4xl': '2rem',
       },
       boxShadow: {
-        'soft': '0 10px 30px -10px rgba(0, 0, 0, 0.04)',
-        'fresh-hover': '0 20px 40px -15px rgba(16, 185, 129, 0.1)',
+        'vibe': '0 0 50px -12px rgba(99, 102, 241, 0.12)',
+        'vibe-hover': '0 20px 40px -15px rgba(99, 102, 241, 0.2)',
+      },
+      animation: {
+        'float': 'float 6s ease-in-out infinite',
+      },
+      keyframes: {
+        float: {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-10px)' },
+        }
       }
     },
   },
