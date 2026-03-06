@@ -1,3 +1,30 @@
+export type AssetType = 'prompt' | 'skill'
+
+export interface Asset {
+  id: string
+  key: string
+  type: AssetType
+  title: string
+  summary: string
+  content: string
+  tags: string[]
+  collection: string
+  updatedAt: string
+  version: number
+}
+
+export interface AssetDraft {
+  id?: string
+  type: AssetType
+  key: string
+  title: string
+  summary: string
+  content: string
+  tags: string[]
+  collection: string
+  version: number
+}
+
 export interface Prompt {
   id: string
   name: string
