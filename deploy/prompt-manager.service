@@ -1,0 +1,16 @@
+[Unit]
+Description=Prompt Manager API Service
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory=/opt/prompt-manager
+EnvironmentFile=/etc/prompt-manager/prompt-manager.env
+ExecStart=/usr/bin/npm run start
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
