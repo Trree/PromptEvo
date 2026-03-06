@@ -1,13 +1,14 @@
 import { useState } from 'react'
-import { ChevronLeft, Save } from 'lucide-react'
+import { ChevronLeft, Save, Trash2 } from 'lucide-react'
 import type { Skill } from '../types'
 
 // --- Skill Editor ---
 
-export function SkillEditor({ item, onBack, onSave }: {
+export function SkillEditor({ item, onBack, onSave, onDelete }: {
   item: Partial<Skill>
   onBack: () => void
   onSave: (data: Partial<Skill>) => void
+  onDelete: (id: string) => void
 }) {
   const [draft, setDraft] = useState(item)
 
@@ -18,7 +19,12 @@ export function SkillEditor({ item, onBack, onSave }: {
           <button onClick={onBack} className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"><ChevronLeft className="w-4 h-4 text-gray-500" /></button>
           <span className="text-sm font-semibold text-gray-800 truncate max-w-xs">{draft.name || 'New Skill'}</span>
         </div>
-        <button onClick={() => onSave(draft)} className="bg-black text-white px-4 py-1.5 rounded-lg text-sm font-semibold flex items-center gap-1.5 hover:bg-gray-800 transition-colors"><Save className="w-3.5 h-3.5" /> Save</button>
+        <div className="flex items-center gap-2">
+          {item.id && (
+            <button onClick={() => { if (confirm('Delete permanently?')) onDelete(item.id!) }} className="p-1.5 hover:bg-red-50 rounded-lg transition-colors group"><Trash2 className="w-4 h-4 text-gray-400 group-hover:text-red-400" /></button>
+          )}
+          <button onClick={() => onSave(draft)} className="bg-black text-white px-4 py-1.5 rounded-lg text-sm font-semibold flex items-center gap-1.5 hover:bg-gray-800 transition-colors"><Save className="w-3.5 h-3.5" /> Save</button>
+        </div>
       </header>
       <main className="flex-1 max-w-3xl mx-auto w-full px-8 py-10 space-y-5">
         <input value={draft.name || ''} onChange={(e) => setDraft({ ...draft, name: e.target.value })} className="text-3xl font-black text-gray-900 border-none outline-none w-full placeholder:text-gray-200" placeholder="Skill name..." />

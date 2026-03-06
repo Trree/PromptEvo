@@ -1,4 +1,4 @@
-import { Plus, Layout as LayoutIcon, Layers, Code2, Trash2 } from 'lucide-react'
+import { Plus, Layout as LayoutIcon, Layers, Code2, Trash2, EyeOff } from 'lucide-react'
 import { clsx, type ClassValue } from 'clsx'
 import { twMerge } from 'tailwind-merge'
 import { CATEGORIES } from '../constants'
@@ -54,7 +54,7 @@ export function EmptyState() {
   )
 }
 
-export function ItemCard({ badge, preview, title, description, id, onClick, onDelete }: {
+export function ItemCard({ badge, preview, title, description, id, onClick, onDelete, onHide }: {
   badge: string
   preview: string
   title: string
@@ -62,6 +62,7 @@ export function ItemCard({ badge, preview, title, description, id, onClick, onDe
   id: string
   onClick: () => void
   onDelete: (id: string) => void
+  onHide: (id: string) => void
 }) {
   return (
     <div className="flex flex-col gap-2.5 group cursor-pointer" onClick={onClick}>
@@ -69,12 +70,22 @@ export function ItemCard({ badge, preview, title, description, id, onClick, onDe
         <span className="absolute top-3 left-3 z-10 text-[10px] font-bold uppercase tracking-wider bg-white border border-gray-200 text-gray-600 px-2 py-0.5 rounded-md shadow-sm">
           {badge}
         </span>
-        <button
-          onClick={(e) => { e.stopPropagation(); onDelete(id) }}
-          className="absolute top-3 right-3 z-10 opacity-0 group-hover:opacity-100 transition-opacity p-1 bg-white rounded-md shadow-sm hover:bg-red-50"
-        >
-          <Trash2 className="w-3 h-3 text-red-400" />
-        </button>
+        <div className="absolute top-3 right-3 z-10 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+          <button
+            onClick={(e) => { e.stopPropagation(); onHide(id) }}
+            className="p-1 bg-white rounded-md shadow-sm hover:bg-gray-50 border border-gray-100"
+            title="Hide"
+          >
+            <EyeOff className="w-3 h-3 text-gray-400" />
+          </button>
+          <button
+            onClick={(e) => { e.stopPropagation(); if (confirm('Delete permanently?')) onDelete(id) }}
+            className="p-1 bg-white rounded-md shadow-sm hover:bg-red-50 border border-gray-100"
+            title="Delete"
+          >
+            <Trash2 className="w-3 h-3 text-red-400" />
+          </button>
+        </div>
         <div className="absolute inset-0 pt-10 px-4 pb-4 overflow-hidden text-[11px] leading-relaxed text-gray-500 font-mono whitespace-pre-wrap break-words">
           {preview}
         </div>

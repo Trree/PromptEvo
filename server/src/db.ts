@@ -11,7 +11,10 @@ export function extractVariables(content: string): string[] {
 
 export const promptDb = {
   async findAll() {
-    return prisma.prompt.findMany({ orderBy: { updatedAt: 'desc' } })
+    return prisma.prompt.findMany({
+      where: { isHidden: false },
+      orderBy: { updatedAt: 'desc' },
+    })
   },
 
   async findById(id: string) {
@@ -26,34 +29,46 @@ export const promptDb = {
   },
 
   async upsert(data: {
+    id?: string
     name: string
     title: string
     content: string
     description?: string
     category?: string
+    isHidden?: boolean
   }) {
     const variables = JSON.stringify(extractVariables(data.content))
+    const { id, ...rest } = data
 
     return prisma.$transaction(async (tx) => {
-      const existing = await tx.prompt.findUnique({ where: { name: data.name } })
+      const existing = id 
+        ? await tx.prompt.findUnique({ where: { id } })
+        : await tx.prompt.findUnique({ where: { name: data.name } })
 
       if (existing) {
-        await tx.promptVersion.create({
-          data: {
-            promptId: existing.id,
-            version: existing.version,
-            content: existing.content,
-            variables: existing.variables,
-          },
-        })
+        // Only create a version if the content has changed
+        if (existing.content !== data.content) {
+          await tx.promptVersion.create({
+            data: {
+              promptId: existing.id,
+              version: existing.version,
+              content: existing.content,
+              variables: existing.variables,
+            },
+          })
+          return tx.prompt.update({
+            where: { id: existing.id },
+            data: { ...rest, variables, version: { increment: 1 } },
+          })
+        }
         return tx.prompt.update({
-          where: { name: data.name },
-          data: { ...data, variables, version: { increment: 1 } },
+          where: { id: existing.id },
+          data: { ...rest, variables },
         })
       }
 
       return tx.prompt.create({
-        data: { ...data, variables },
+        data: { ...rest, variables },
       })
     })
   },
@@ -61,31 +76,48 @@ export const promptDb = {
   async deleteById(id: string) {
     return prisma.prompt.delete({ where: { id } })
   },
+
+  async hideById(id: string) {
+    return prisma.prompt.update({ where: { id }, data: { isHidden: true } })
+  },
 }
 
 // --- Skill Logic ---
 
 export const skillDb = {
   async findAll() {
-    return prisma.skill.findMany({ orderBy: { updatedAt: 'desc' } })
+    return prisma.skill.findMany({
+      where: { isHidden: false },
+      orderBy: { updatedAt: 'desc' },
+    })
   },
 
   async upsert(data: {
+    id?: string
     name: string
     description: string
     manifest: string
     codePath?: string
     type?: string
     isActive?: boolean
+    isHidden?: boolean
   }) {
+    const { id, ...rest } = data
+    if (id) {
+      return prisma.skill.update({ where: { id }, data: rest })
+    }
     return prisma.skill.upsert({
       where: { name: data.name },
-      update: data,
-      create: data,
+      update: rest,
+      create: rest,
     })
   },
 
   async deleteById(id: string) {
     return prisma.skill.delete({ where: { id } })
+  },
+
+  async hideById(id: string) {
+    return prisma.skill.update({ where: { id }, data: { isHidden: true } })
   },
 }

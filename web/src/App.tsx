@@ -21,13 +21,17 @@ function MainApp() {
   const { data: skills = [] } = skillApi.list()
   const savePrompt = promptApi.save()
   const deletePrompt = promptApi.remove()
+  const hidePrompt = promptApi.hide()
   const saveSkill = skillApi.save()
   const deleteSkill = skillApi.remove()
+  const hideSkill = skillApi.hide()
 
   const filteredItems = useMemo(() => {
     const items = contentType === 'prompts' ? prompts : skills
-    if (activeCategory === 'All') return items
-    return items.filter((item) => (item as Prompt).category === activeCategory)
+    // We only show non-hidden items by default (backend already filters, but for safety)
+    const visibleItems = items.filter(item => !item.isHidden)
+    if (activeCategory === 'All') return visibleItems
+    return visibleItems.filter((item) => (item as Prompt).category === activeCategory)
   }, [contentType, prompts, skills, activeCategory])
 
   const handleCreate = () => {
@@ -38,8 +42,8 @@ function MainApp() {
     }
   }
 
-  if (selectedPrompt) return <PromptEditor item={selectedPrompt} onBack={() => setSelectedPrompt(null)} onSave={(data) => savePrompt.mutate(data, { onSuccess: () => setSelectedPrompt(null) })} />
-  if (selectedSkill) return <SkillEditor item={selectedSkill} onBack={() => setSelectedSkill(null)} onSave={(data) => saveSkill.mutate(data, { onSuccess: () => setSelectedSkill(null) })} />
+  if (selectedPrompt) return <PromptEditor item={selectedPrompt} onBack={() => setSelectedPrompt(null)} onSave={(data) => savePrompt.mutate(data, { onSuccess: () => setSelectedPrompt(null) })} onDelete={(id) => deletePrompt.mutate(id, { onSuccess: () => setSelectedPrompt(null) })} />
+  if (selectedSkill) return <SkillEditor item={selectedSkill} onBack={() => setSelectedSkill(null)} onSave={(data) => saveSkill.mutate(data, { onSuccess: () => setSelectedSkill(null) })} onDelete={(id) => deleteSkill.mutate(id, { onSuccess: () => setSelectedSkill(null) })} />
 
   return (
     <div className="min-h-screen bg-[#F6F4F1] flex text-gray-900 font-sans">
@@ -52,10 +56,10 @@ function MainApp() {
         <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-5">
           {contentType === 'prompts'
             ? (filteredItems as Prompt[]).map(p => (
-                <ItemCard key={p.id} id={p.id} badge={p.category || 'Prompt'} preview={p.content} title={p.title || p.name} description={p.description} onClick={() => setSelectedPrompt(p)} onDelete={id => deletePrompt.mutate(id)} />
+                <ItemCard key={p.id} id={p.id} badge={p.category || 'Prompt'} preview={p.content} title={p.title || p.name} description={p.description} onClick={() => setSelectedPrompt(p)} onDelete={id => deletePrompt.mutate(id)} onHide={id => hidePrompt.mutate(id)} />
               ))
             : (filteredItems as Skill[]).map(s => (
-                <ItemCard key={s.id} id={s.id} badge="Skill" preview={s.manifest || s.description} title={s.name} description={s.description} onClick={() => setSelectedSkill(s)} onDelete={id => deleteSkill.mutate(id)} />
+                <ItemCard key={s.id} id={s.id} badge="Skill" preview={s.manifest || s.description} title={s.name} description={s.description} onClick={() => setSelectedSkill(s)} onDelete={id => deleteSkill.mutate(id)} onHide={id => hideSkill.mutate(id)} />
               ))
           }
           {filteredItems.length === 0 && <EmptyState />}

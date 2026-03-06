@@ -26,6 +26,10 @@ async function del(path: string): Promise<void> {
   await fetch(`${BASE}${path}`, { method: 'DELETE', headers: authHeaders() })
 }
 
+async function hideAction(path: string): Promise<void> {
+  await fetch(`${BASE}${path}/hide`, { method: 'POST', headers: authHeaders() })
+}
+
 // Generic Hook for CRUD
 export function useEntity<T>(key: string) {
   const qc = useQueryClient()
@@ -42,6 +46,10 @@ export function useEntity<T>(key: string) {
     }),
     remove: () => useMutation({
       mutationFn: (id: string) => del(`${path}/${id}`),
+      onSuccess: () => qc.invalidateQueries({ queryKey: [key] }),
+    }),
+    hide: () => useMutation({
+      mutationFn: (id: string) => hideAction(`${path}/${id}`),
       onSuccess: () => qc.invalidateQueries({ queryKey: [key] }),
     }),
   }

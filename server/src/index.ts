@@ -52,14 +52,24 @@ server.post('/api/prompts', {
   onRequest: [requireAuth],
   schema: {
     body: z.object({
+      id: z.string().optional(),
       name: z.string(),
       title: z.string(),
       content: z.string(),
       description: z.string().optional(),
       category: z.string().optional(),
+      isHidden: z.boolean().optional(),
     }),
   },
 }, async (req) => promptDb.upsert(req.body))
+
+server.post('/api/prompts/:id/hide', {
+  onRequest: [requireAuth],
+  schema: { params: z.object({ id: z.string() }) },
+}, async (req, reply) => {
+  await promptDb.hideById(req.params.id)
+  return reply.code(200).send({ success: true })
+})
 
 server.delete('/api/prompts/:id', {
   onRequest: [requireAuth],
@@ -77,15 +87,25 @@ server.post('/api/skills', {
   onRequest: [requireAuth],
   schema: {
     body: z.object({
+      id: z.string().optional(),
       name: z.string(),
       description: z.string(),
       manifest: z.string(),
       codePath: z.string().optional(),
       type: z.string().optional(),
       isActive: z.boolean().optional(),
+      isHidden: z.boolean().optional(),
     }),
   },
 }, async (req) => skillDb.upsert(req.body))
+
+server.post('/api/skills/:id/hide', {
+  onRequest: [requireAuth],
+  schema: { params: z.object({ id: z.string() }) },
+}, async (req, reply) => {
+  await skillDb.hideById(req.params.id)
+  return reply.code(200).send({ success: true })
+})
 
 server.delete('/api/skills/:id', {
   onRequest: [requireAuth],

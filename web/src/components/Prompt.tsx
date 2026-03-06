@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ChevronLeft, Save, History, X } from 'lucide-react'
+import { ChevronLeft, Save, History, X, Trash2 } from 'lucide-react'
 import { usePromptVersions } from '../api'
 import { CATEGORY_OPTIONS } from '../constants'
 import type { Prompt, PromptVersion } from '../types'
@@ -42,10 +42,11 @@ export function VersionHistory({ promptId, onClose, onRestore }: {
 
 // --- Prompt Editor ---
 
-export function PromptEditor({ item, onBack, onSave }: {
+export function PromptEditor({ item, onBack, onSave, onDelete }: {
   item: Partial<Prompt>
   onBack: () => void
   onSave: (data: Partial<Prompt>) => void
+  onDelete: (id: string) => void
 }) {
   const [draft, setDraft] = useState(item)
   const [showHistory, setShowHistory] = useState(false)
@@ -58,7 +59,12 @@ export function PromptEditor({ item, onBack, onSave }: {
           <span className="text-sm font-semibold text-gray-800 truncate max-w-xs">{draft.title || 'Untitled'}</span>
         </div>
         <div className="flex items-center gap-2">
-          {item.id && <button onClick={() => setShowHistory(true)} className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"><History className="w-4 h-4 text-gray-500" /></button>}
+          {item.id && (
+            <>
+              <button onClick={() => { if (confirm('Delete permanently?')) onDelete(item.id!) }} className="p-1.5 hover:bg-red-50 rounded-lg transition-colors group"><Trash2 className="w-4 h-4 text-gray-400 group-hover:text-red-400" /></button>
+              <button onClick={() => setShowHistory(true)} className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"><History className="w-4 h-4 text-gray-500" /></button>
+            </>
+          )}
           <button onClick={() => onSave(draft)} className="bg-black text-white px-4 py-1.5 rounded-lg text-sm font-semibold flex items-center gap-1.5 hover:bg-gray-800 transition-colors"><Save className="w-3.5 h-3.5" /> Save</button>
         </div>
       </header>

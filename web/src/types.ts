@@ -7,6 +7,7 @@ export interface Prompt {
   category?: string
   version: number
   variables: string
+  isHidden: boolean
   createdAt: string
   updatedAt: string
 }
@@ -28,6 +29,7 @@ export interface Skill {
   codePath?: string
   type: string
   isActive: boolean
+  isHidden: boolean
   createdAt: string
   updatedAt: string
 }
