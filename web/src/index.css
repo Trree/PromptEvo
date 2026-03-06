@@ -24,34 +24,3 @@ html, body, #root {
 body {
   @apply bg-[#F6F4F1] text-slate-900 font-sans antialiased;
 }
-
-/* Custom Scrollbar - YouWare Style */
-.custom-scrollbar::-webkit-scrollbar {
-  width: 5px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #E2E8F0;
-  border-radius: 20px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #CBD5E1;
-}
-
-/* Animations */
-.animate-in {
-  animation-fill-mode: forwards;
-}
-
-.fade-in {
-  animation: fade-in 0.3s ease-out;
-}
-
-.slide-in-from-right-4 {
-  animation: slide-in-from-right 0.4s ease-out;
-}
