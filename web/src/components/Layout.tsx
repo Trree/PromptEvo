@@ -1,6 +1,11 @@
-import { Plus, Layout as LayoutIcon, Layers, Code2 } from 'lucide-react'
-import { cn } from '../lib/cn'
+import { Plus, Layout as LayoutIcon, Layers, Code2, Trash2 } from 'lucide-react'
+import { clsx, type ClassValue } from 'clsx'
+import { twMerge } from 'tailwind-merge'
 import { CATEGORIES } from '../constants'
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs))
+}
 
 export function Sidebar({ onCreateClick }: { onCreateClick: () => void }) {
   return (
@@ -45,6 +50,43 @@ export function EmptyState() {
       <div className="w-12 h-12 bg-gray-100 rounded-2xl flex items-center justify-center mb-3"><LayoutIcon className="w-5 h-5 text-gray-300" /></div>
       <p className="text-sm font-medium text-gray-400">No templates yet</p>
       <p className="text-xs text-gray-300 mt-1">Create your first one</p>
+    </div>
+  )
+}
+
+export function ItemCard({ badge, preview, title, description, id, onClick, onDelete }: {
+  badge: string
+  preview: string
+  title: string
+  description?: string
+  id: string
+  onClick: () => void
+  onDelete: (id: string) => void
+}) {
+  return (
+    <div className="flex flex-col gap-2.5 group cursor-pointer" onClick={onClick}>
+      <div className="relative aspect-[4/3] rounded-2xl overflow-hidden border border-[#E8E5E0] bg-[#EDEAE6] group-hover:shadow-lg group-hover:-translate-y-0.5 transition-all duration-200">
+        <span className="absolute top-3 left-3 z-10 text-[10px] font-bold uppercase tracking-wider bg-white border border-gray-200 text-gray-600 px-2 py-0.5 rounded-md shadow-sm">
+          {badge}
+        </span>
+        <button
+          onClick={(e) => { e.stopPropagation(); onDelete(id) }}
+          className="absolute top-3 right-3 z-10 opacity-0 group-hover:opacity-100 transition-opacity p-1 bg-white rounded-md shadow-sm hover:bg-red-50"
+        >
+          <Trash2 className="w-3 h-3 text-red-400" />
+        </button>
+        <div className="absolute inset-0 pt-10 px-4 pb-4 overflow-hidden text-[11px] leading-relaxed text-gray-500 font-mono whitespace-pre-wrap break-words">
+          {preview}
+        </div>
+        <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-[#EDEAE6] to-transparent pointer-events-none" />
+        <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
+          <span className="bg-white text-gray-900 text-xs font-bold px-4 py-2 rounded-full shadow-lg scale-95 group-hover:scale-100 transition-transform duration-200">Open</span>
+        </div>
+      </div>
+      <div className="px-0.5">
+        <p className="text-sm font-semibold text-gray-900 line-clamp-1">{title}</p>
+        {description && <p className="text-xs text-gray-400 mt-0.5 line-clamp-1">{description}</p>}
+      </div>
     </div>
   )
 }

@@ -1,13 +1,29 @@
-import axios from 'axios'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import type { PromptVersion } from './types'
 
-const instance = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL ?? '/api',
-})
+const BASE = import.meta.env.VITE_API_BASE_URL ?? '/api'
 
-const getHeaders = () => {
+function authHeaders(): HeadersInit {
   const key = import.meta.env.VITE_API_KEY ?? ''
   return key ? { Authorization: `Bearer ${key}` } : {}
+}
+
+async function get<T>(path: string): Promise<T> {
+  const r = await fetch(`${BASE}${path}`)
+  return r.json()
+}
+
+async function post<T>(path: string, body: unknown): Promise<T> {
+  const r = await fetch(`${BASE}${path}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...authHeaders() },
+    body: JSON.stringify(body),
+  })
+  return r.json()
+}
+
+async function del(path: string): Promise<void> {
+  await fetch(`${BASE}${path}`, { method: 'DELETE', headers: authHeaders() })
 }
 
 // Generic Hook for CRUD
@@ -18,16 +34,16 @@ export function useEntity<T>(key: string) {
   return {
     list: () => useQuery<T[]>({
       queryKey: [key],
-      queryFn: () => instance.get(path).then(r => r.data)
+      queryFn: () => get<T[]>(path),
     }),
     save: () => useMutation({
-      mutationFn: (data: Partial<T>) => instance.post(path, data, { headers: getHeaders() }).then(r => r.data),
-      onSuccess: () => qc.invalidateQueries({ queryKey: [key] })
+      mutationFn: (data: Partial<T>) => post<T>(path, data),
+      onSuccess: () => qc.invalidateQueries({ queryKey: [key] }),
     }),
     remove: () => useMutation({
-      mutationFn: (id: string) => instance.delete(`${path}/${id}`, { headers: getHeaders() }),
-      onSuccess: () => qc.invalidateQueries({ queryKey: [key] })
-    })
+      mutationFn: (id: string) => del(`${path}/${id}`),
+      onSuccess: () => qc.invalidateQueries({ queryKey: [key] }),
+    }),
   }
 }
 
@@ -35,9 +51,7 @@ export function useEntity<T>(key: string) {
 export function usePromptVersions(id: string | null) {
   return useQuery({
     queryKey: ['prompts', id, 'versions'],
-    queryFn: () => instance.get(`/prompts/${id}/versions`).then(r => r.data),
-    enabled: !!id
+    queryFn: () => get<PromptVersion[]>(`/prompts/${id}/versions`),
+    enabled: !!id,
   })
 }
-
-export const api = instance

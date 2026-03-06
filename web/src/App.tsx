@@ -1,8 +1,8 @@
 import { useState, useMemo } from 'react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { Sidebar, CategoryTabs, ContentTypeToggle, EmptyState } from './components/Layout'
-import { PromptCard, PromptEditor } from './components/Prompt'
-import { SkillCard, SkillEditor } from './components/Skill'
+import { Sidebar, CategoryTabs, ContentTypeToggle, EmptyState, ItemCard } from './components/Layout'
+import { PromptEditor } from './components/Prompt'
+import { SkillEditor } from './components/Skill'
 import { useEntity } from './api'
 import type { Prompt, Skill } from './types'
 
@@ -27,7 +27,7 @@ function MainApp() {
   const filteredItems = useMemo(() => {
     const items = contentType === 'prompts' ? prompts : skills
     if (activeCategory === 'All') return items
-    return items.filter((item: any) => item.category === activeCategory)
+    return items.filter((item) => (item as Prompt).category === activeCategory)
   }, [contentType, prompts, skills, activeCategory])
 
   const handleCreate = () => {
@@ -45,15 +45,18 @@ function MainApp() {
     <div className="min-h-screen bg-[#F6F4F1] flex text-gray-900 font-sans">
       <Sidebar onCreateClick={handleCreate} />
       <main className="flex-1 px-8 py-7 overflow-y-auto">
-        <div className="flex items-center justify-between mb-5">
-          <h1 className="text-[28px] font-black tracking-tight" />
+        <div className="flex items-center justify-end mb-5">
           <ContentTypeToggle value={contentType} onChange={setContentType} />
         </div>
         <CategoryTabs active={activeCategory} onChange={setActiveCategory} />
         <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-5">
           {contentType === 'prompts'
-            ? (filteredItems as Prompt[]).map(p => <PromptCard key={p.id} item={p} onClick={() => setSelectedPrompt(p)} onDelete={id => deletePrompt.mutate(id)} />)
-            : (filteredItems as Skill[]).map(s => <SkillCard key={s.id} item={s} onClick={() => setSelectedSkill(s)} onDelete={id => deleteSkill.mutate(id)} />)
+            ? (filteredItems as Prompt[]).map(p => (
+                <ItemCard key={p.id} id={p.id} badge={p.category || 'Prompt'} preview={p.content} title={p.title || p.name} description={p.description} onClick={() => setSelectedPrompt(p)} onDelete={id => deletePrompt.mutate(id)} />
+              ))
+            : (filteredItems as Skill[]).map(s => (
+                <ItemCard key={s.id} id={s.id} badge="Skill" preview={s.manifest || s.description} title={s.name} description={s.description} onClick={() => setSelectedSkill(s)} onDelete={id => deleteSkill.mutate(id)} />
+              ))
           }
           {filteredItems.length === 0 && <EmptyState />}
         </div>
