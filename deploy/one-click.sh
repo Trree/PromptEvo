@@ -91,6 +91,12 @@ rsync -a --delete \
 chown -R www-data:www-data "${APP_DIR}"
 
 cd "${APP_DIR}"
+
+# Load runtime env so Prisma CLI can read DATABASE_URL during deploy steps.
+set -a
+source "${ENV_FILE}"
+set +a
+
 npm ci
 npm ci --prefix web
 npm run prisma:generate
