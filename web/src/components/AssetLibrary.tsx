@@ -15,6 +15,10 @@ import {
   PencilLine,
   Trash2,
   ArrowUpRight,
+  KeyRound,
+  ShieldCheck,
+  ShieldOff,
+  X,
 } from 'lucide-react'
 import type { Asset, AssetType } from '../types'
 import { cn } from '../lib/cn'
@@ -53,6 +57,9 @@ interface AssetLibraryProps {
   onActiveTagChange: (value: string | null) => void
   collections: CounterItem[]
   tags: CounterItem[]
+  canWrite: boolean
+  adminKey: string
+  onAdminKeyChange: (value: string) => void
   favoriteIds: string[]
   onToggleFavorite: (id: string) => void
   onSelectAsset: (id: string) => void
@@ -160,6 +167,7 @@ function CardActionMenu({
   onDelete,
   onToggleFavorite,
   isFavorite,
+  canWrite,
 }: {
   asset: Asset
   onEdit: (id: string) => void
@@ -167,6 +175,7 @@ function CardActionMenu({
   onDelete: (asset: Asset) => void
   onToggleFavorite: (id: string) => void
   isFavorite: boolean
+  canWrite: boolean
 }) {
   return (
     <details className="relative" onClick={(event) => event.stopPropagation()}>
@@ -174,13 +183,15 @@ function CardActionMenu({
         <MoreHorizontal className="h-4 w-4" />
       </summary>
       <div className="absolute right-0 top-8 z-30 min-w-36 overflow-hidden rounded-xl border border-[var(--border-muted)] bg-white p-1 shadow-[0_14px_40px_rgba(15,23,42,0.12)]">
-        <button
-          className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-xs text-slate-700 hover:bg-[var(--surface-subtle)]"
-          onClick={() => onEdit(asset.id)}
-        >
-          <PencilLine className="h-3.5 w-3.5" />
-          Edit
-        </button>
+        {canWrite && (
+          <button
+            className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-xs text-slate-700 hover:bg-[var(--surface-subtle)]"
+            onClick={() => onEdit(asset.id)}
+          >
+            <PencilLine className="h-3.5 w-3.5" />
+            Edit
+          </button>
+        )}
         <button
           className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-xs text-slate-700 hover:bg-[var(--surface-subtle)]"
           onClick={() => onToggleFavorite(asset.id)}
@@ -188,20 +199,24 @@ function CardActionMenu({
           <Star className={cn('h-3.5 w-3.5', isFavorite && 'fill-current')} />
           {isFavorite ? 'Remove favorite' : 'Add favorite'}
         </button>
-        <button
-          className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-xs text-slate-700 hover:bg-[var(--surface-subtle)]"
-          onClick={() => onHide(asset)}
-        >
-          <EyeOff className="h-3.5 w-3.5" />
-          Hide
-        </button>
-        <button
-          className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-xs text-rose-600 hover:bg-rose-50"
-          onClick={() => onDelete(asset)}
-        >
-          <Trash2 className="h-3.5 w-3.5" />
-          Delete
-        </button>
+        {canWrite && (
+          <>
+            <button
+              className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-xs text-slate-700 hover:bg-[var(--surface-subtle)]"
+              onClick={() => onHide(asset)}
+            >
+              <EyeOff className="h-3.5 w-3.5" />
+              Hide
+            </button>
+            <button
+              className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-xs text-rose-600 hover:bg-rose-50"
+              onClick={() => onDelete(asset)}
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+              Delete
+            </button>
+          </>
+        )}
       </div>
     </details>
   )
@@ -218,6 +233,7 @@ function AssetCard({
   onHide,
   onDelete,
   onToggleFavorite,
+  canWrite,
 }: {
   asset: Asset
   selected: boolean
@@ -229,6 +245,7 @@ function AssetCard({
   onHide: (asset: Asset) => void
   onDelete: (asset: Asset) => void
   onToggleFavorite: (id: string) => void
+  canWrite: boolean
 }) {
   if (viewMode === 'list') {
     return (
@@ -265,6 +282,7 @@ function AssetCard({
             onDelete={onDelete}
             onToggleFavorite={onToggleFavorite}
             isFavorite={isFavorite}
+            canWrite={canWrite}
           />
         </div>
       </article>
@@ -296,6 +314,7 @@ function AssetCard({
           onDelete={onDelete}
           onToggleFavorite={onToggleFavorite}
           isFavorite={isFavorite}
+          canWrite={canWrite}
         />
       </div>
 
@@ -346,6 +365,9 @@ export function AssetLibrary({
   onActiveTagChange,
   collections,
   tags,
+  canWrite,
+  adminKey,
+  onAdminKeyChange,
   favoriteIds,
   onToggleFavorite,
   onSelectAsset,
@@ -452,20 +474,27 @@ export function AssetLibrary({
         </div>
 
         <div className="mt-6 space-y-2 border-t border-[var(--border-muted)] pt-4">
-          <button
-            onClick={onCreatePrompt}
-            className="flex w-full items-center justify-center gap-2 rounded-xl border border-slate-900 bg-slate-900 px-3 py-2.5 text-sm font-medium text-white transition-colors hover:bg-slate-800"
-          >
-            <Plus className="h-4 w-4" />
-            New Prompt
-          </button>
-          <button
-            onClick={onCreateSkill}
-            className="flex w-full items-center justify-center gap-2 rounded-xl border border-[var(--border-muted)] bg-white px-3 py-2.5 text-sm font-medium text-slate-700 transition-colors hover:bg-[var(--surface-subtle)]"
-          >
-            <Plus className="h-4 w-4" />
-            New Skill
-          </button>
+          {canWrite && (
+            <>
+              <button
+                onClick={onCreatePrompt}
+                className="flex w-full items-center justify-center gap-2 rounded-xl border border-slate-900 bg-slate-900 px-3 py-2.5 text-sm font-medium text-white transition-colors hover:bg-slate-800"
+              >
+                <Plus className="h-4 w-4" />
+                New Prompt
+              </button>
+              <button
+                onClick={onCreateSkill}
+                className="flex w-full items-center justify-center gap-2 rounded-xl border border-[var(--border-muted)] bg-white px-3 py-2.5 text-sm font-medium text-slate-700 transition-colors hover:bg-[var(--surface-subtle)]"
+              >
+                <Plus className="h-4 w-4" />
+                New Skill
+              </button>
+            </>
+          )}
+          {!canWrite && (
+            <p className="px-1 text-xs text-slate-400">Read-only mode. Enter Admin Key to enable write actions.</p>
+          )}
         </div>
       </aside>
 
@@ -486,6 +515,42 @@ export function AssetLibrary({
               Open Detail
               <ArrowUpRight className="h-4 w-4" />
             </button>
+          </div>
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[var(--border-muted)] bg-[var(--surface-subtle)] px-3 py-2">
+            <div className="inline-flex items-center gap-2 text-xs text-slate-600">
+              {canWrite ? (
+                <>
+                  <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />
+                  Write mode enabled
+                </>
+              ) : (
+                <>
+                  <ShieldOff className="h-3.5 w-3.5 text-slate-500" />
+                  Read-only mode
+                </>
+              )}
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="relative">
+                <KeyRound className="pointer-events-none absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" />
+                <input
+                  value={adminKey}
+                  onChange={(event) => onAdminKeyChange(event.target.value)}
+                  type="password"
+                  placeholder="Admin Key"
+                  className="h-8 w-48 rounded-lg border border-[var(--border-muted)] bg-white pl-7 pr-2 text-xs text-slate-700 outline-none transition-colors placeholder:text-slate-400 focus:border-slate-400"
+                />
+              </div>
+              {adminKey && (
+                <button
+                  onClick={() => onAdminKeyChange('')}
+                  className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-[var(--border-muted)] bg-white text-slate-500 transition-colors hover:bg-slate-50 hover:text-slate-700"
+                  aria-label="Clear admin key"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              )}
+            </div>
           </div>
 
           <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
@@ -599,6 +664,7 @@ export function AssetLibrary({
                   onHide={onHideAsset}
                   onDelete={onDeleteAsset}
                   onToggleFavorite={onToggleFavorite}
+                  canWrite={canWrite}
                 />
               ))}
             </div>
@@ -617,6 +683,7 @@ export function AssetLibrary({
                   onHide={onHideAsset}
                   onDelete={onDeleteAsset}
                   onToggleFavorite={onToggleFavorite}
+                  canWrite={canWrite}
                 />
               ))}
             </div>
@@ -692,30 +759,34 @@ export function AssetLibrary({
               >
                 Open detail
               </button>
-              <button
-                onClick={() => onEditAsset(selectedAsset.id)}
-                className="flex w-full items-center justify-center gap-2 rounded-[10px] border border-[var(--border-muted)] bg-white px-3 py-2.5 text-sm font-medium text-slate-700 transition-colors hover:bg-[var(--surface-subtle)]"
-              >
-                Edit asset
-              </button>
+              {canWrite && (
+                <button
+                  onClick={() => onEditAsset(selectedAsset.id)}
+                  className="flex w-full items-center justify-center gap-2 rounded-[10px] border border-[var(--border-muted)] bg-white px-3 py-2.5 text-sm font-medium text-slate-700 transition-colors hover:bg-[var(--surface-subtle)]"
+                >
+                  Edit asset
+                </button>
+              )}
             </div>
 
-            <div className="mt-4 grid grid-cols-2 gap-2">
-              <button
-                onClick={() => onHideAsset(selectedAsset)}
-                className="flex items-center justify-center gap-1.5 rounded-[10px] border border-[var(--border-muted)] bg-white px-2 py-2 text-xs text-slate-600 transition-colors hover:bg-[var(--surface-subtle)]"
-              >
-                <EyeOff className="h-3.5 w-3.5" />
-                Hide
-              </button>
-              <button
-                onClick={() => onDeleteAsset(selectedAsset)}
-                className="flex items-center justify-center gap-1.5 rounded-[10px] border border-rose-200 bg-rose-50 px-2 py-2 text-xs text-rose-700 transition-colors hover:bg-rose-100"
-              >
-                <Trash2 className="h-3.5 w-3.5" />
-                Delete
-              </button>
-            </div>
+            {canWrite && (
+              <div className="mt-4 grid grid-cols-2 gap-2">
+                <button
+                  onClick={() => onHideAsset(selectedAsset)}
+                  className="flex items-center justify-center gap-1.5 rounded-[10px] border border-[var(--border-muted)] bg-white px-2 py-2 text-xs text-slate-600 transition-colors hover:bg-[var(--surface-subtle)]"
+                >
+                  <EyeOff className="h-3.5 w-3.5" />
+                  Hide
+                </button>
+                <button
+                  onClick={() => onDeleteAsset(selectedAsset)}
+                  className="flex items-center justify-center gap-1.5 rounded-[10px] border border-rose-200 bg-rose-50 px-2 py-2 text-xs text-rose-700 transition-colors hover:bg-rose-100"
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                  Delete
+                </button>
+              </div>
+            )}
           </>
         )}
       </aside>

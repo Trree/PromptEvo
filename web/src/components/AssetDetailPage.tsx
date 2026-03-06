@@ -21,6 +21,7 @@ type DetailTab = 'overview' | 'content' | 'versions' | 'settings'
 
 interface AssetDetailPageProps {
   asset: Asset
+  canWrite: boolean
   isFavorite: boolean
   onBack: () => void
   onEdit: () => void
@@ -340,6 +341,7 @@ function SettingsTab({
 
 export function AssetDetailPage({
   asset,
+  canWrite,
   isFavorite,
   onBack,
   onEdit,
@@ -348,6 +350,7 @@ export function AssetDetailPage({
   onDelete,
 }: AssetDetailPageProps) {
   const [activeTab, setActiveTab] = useState<DetailTab>('overview')
+  const visibleTabs = canWrite ? tabItems : tabItems.filter((tab) => tab.key !== 'settings')
 
   return (
     <div className="h-screen overflow-auto bg-[var(--surface-app)] px-6 py-5">
@@ -383,18 +386,20 @@ export function AssetDetailPage({
                 <Star className={cn('h-4 w-4', isFavorite && 'fill-current')} />
                 {isFavorite ? 'Favorited' : 'Favorite'}
               </button>
-              <button
-                onClick={onEdit}
-                className="inline-flex items-center gap-1.5 rounded-[10px] border border-[var(--border-muted)] bg-white px-3 py-2 text-sm text-slate-700 transition-colors hover:bg-[var(--surface-subtle)]"
-              >
-                <PencilLine className="h-4 w-4" />
-                Edit
-              </button>
+              {canWrite && (
+                <button
+                  onClick={onEdit}
+                  className="inline-flex items-center gap-1.5 rounded-[10px] border border-[var(--border-muted)] bg-white px-3 py-2 text-sm text-slate-700 transition-colors hover:bg-[var(--surface-subtle)]"
+                >
+                  <PencilLine className="h-4 w-4" />
+                  Edit
+                </button>
+              )}
             </div>
           </div>
 
           <div className="mt-4 flex flex-wrap gap-1">
-            {tabItems.map(({ key, label, icon: Icon }) => (
+            {visibleTabs.map(({ key, label, icon: Icon }) => (
               <button
                 key={key}
                 onClick={() => setActiveTab(key)}
@@ -416,7 +421,7 @@ export function AssetDetailPage({
           {activeTab === 'overview' && <OverviewTab asset={asset} />}
           {activeTab === 'content' && <ContentTab asset={asset} />}
           {activeTab === 'versions' && <VersionsTab asset={asset} />}
-          {activeTab === 'settings' && <SettingsTab asset={asset} onHide={onHide} onDelete={onDelete} />}
+          {activeTab === 'settings' && canWrite && <SettingsTab asset={asset} onHide={onHide} onDelete={onDelete} />}
         </main>
       </div>
     </div>

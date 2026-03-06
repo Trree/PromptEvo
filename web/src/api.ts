@@ -2,9 +2,14 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import type { PromptVersion } from './types'
 
 const BASE = import.meta.env.VITE_API_BASE_URL ?? '/api'
+let runtimeApiKey = ''
+
+export function setRuntimeApiKey(value: string) {
+  runtimeApiKey = value.trim()
+}
 
 function authHeaders(): HeadersInit {
-  const key = import.meta.env.VITE_API_KEY ?? ''
+  const key = runtimeApiKey || import.meta.env.VITE_API_KEY || ''
   return key ? { Authorization: `Bearer ${key}` } : {}
 }
 

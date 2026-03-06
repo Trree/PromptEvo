@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { useEntity } from './api'
+import { setRuntimeApiKey, useEntity } from './api'
 import { AssetDetailPage } from './components/AssetDetailPage'
 import {
   AssetLibrary,
@@ -18,6 +18,7 @@ type Page = 'library' | 'detail' | 'edit'
 const FAVORITES_KEY = 'asset-manager:favorites'
 const RECENT_KEY = 'asset-manager:recent'
 const CUSTOM_TAGS_KEY = 'asset-manager:custom-tags'
+const ADMIN_KEY_STORAGE = 'asset-manager:admin-key'
 
 const DEFAULT_PROMPT_COLLECTION = 'General'
 const DEFAULT_SKILL_COLLECTION = 'local'
@@ -32,6 +33,15 @@ function safeReadStringArray(key: string): string[] {
     return parsed.filter((entry): entry is string => typeof entry === 'string')
   } catch {
     return []
+  }
+}
+
+function safeReadString(key: string): string {
+  if (typeof window === 'undefined') return ''
+  try {
+    return window.localStorage.getItem(key) ?? ''
+  } catch {
+    return ''
   }
 }
 
@@ -187,6 +197,8 @@ function MainApp() {
   const [customTags, setCustomTags] = useState<Record<string, string[]>>(() =>
     safeReadTagMap(CUSTOM_TAGS_KEY)
   )
+  const [adminKey, setAdminKey] = useState<string>(() => safeReadString(ADMIN_KEY_STORAGE))
+  const canWrite = adminKey.trim().length > 0
 
   const promptApi = useEntity<Prompt>('prompts')
   const skillApi = useEntity<Skill>('skills')
@@ -213,6 +225,11 @@ function MainApp() {
   useEffect(() => {
     window.localStorage.setItem(CUSTOM_TAGS_KEY, JSON.stringify(customTags))
   }, [customTags])
+
+  useEffect(() => {
+    setRuntimeApiKey(adminKey)
+    window.localStorage.setItem(ADMIN_KEY_STORAGE, adminKey)
+  }, [adminKey])
 
   const allAssets = useMemo<Asset[]>(() => {
     const promptAssets = prompts
@@ -356,6 +373,7 @@ function MainApp() {
   }
 
   const handleHideAsset = (asset: Asset) => {
+    if (!canWrite) return
     const shouldHide = window.confirm(`Hide "${asset.title}" from the library?`)
     if (!shouldHide) return
 
@@ -375,6 +393,7 @@ function MainApp() {
   }
 
   const handleDeleteAsset = (asset: Asset) => {
+    if (!canWrite) return
     const shouldDelete = window.confirm(`Delete "${asset.title}" permanently?`)
     if (!shouldDelete) return
 
@@ -406,6 +425,7 @@ function MainApp() {
   }
 
   const openEditorFromAsset = (id: string) => {
+    if (!canWrite) return
     const asset = allAssets.find((entry) => entry.id === id)
     if (!asset) return
 
@@ -416,11 +436,13 @@ function MainApp() {
   }
 
   const openCreatePage = (type: AssetType) => {
+    if (!canWrite) return
     setEditingDraft(createDraft(type))
     setPage('edit')
   }
 
   const handleSaveDraft = (draft: AssetDraft) => {
+    if (!canWrite) return
     const normalizedDraft: AssetDraft = {
       ...draft,
       title: draft.title.trim(),
@@ -511,6 +533,7 @@ function MainApp() {
     return (
       <AssetDetailPage
         asset={selectedAsset}
+        canWrite={canWrite}
         isFavorite={favoriteIds.includes(selectedAsset.id)}
         onBack={() => setPage('library')}
         onEdit={() => openEditorFromAsset(selectedAsset.id)}
@@ -547,6 +570,9 @@ function MainApp() {
       onActiveTagChange={setActiveTag}
       collections={collectionCounts}
       tags={tagCounts}
+      canWrite={canWrite}
+      adminKey={adminKey}
+      onAdminKeyChange={setAdminKey}
       favoriteIds={favoriteIds}
       onToggleFavorite={toggleFavorite}
       onSelectAsset={(id) => {
