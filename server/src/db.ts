@@ -6,7 +6,10 @@ export const prisma = new PrismaClient()
 
 export function extractVariables(content: string): string[] {
   const matches = content.matchAll(/\{\{(\w+)\}\}/g)
-  return Array.from(new Set(Array.from(matches, (m) => m[1])))
+  const values = Array.from(matches, (m) => m[1]).filter(
+    (value): value is string => typeof value === 'string' && value.length > 0,
+  )
+  return Array.from(new Set(values))
 }
 
 export const promptDb = {

@@ -1,7 +1,9 @@
 import { useMemo, useState } from 'react'
 import {
   ArrowLeft,
+  Check,
   Clock3,
+  Copy,
   EyeOff,
   FileText,
   Layers,
@@ -52,6 +54,59 @@ function TypeBadge({ type }: { type: Asset['type'] }) {
       {type === 'prompt' ? <FileText className="h-3.5 w-3.5" /> : <Wrench className="h-3.5 w-3.5" />}
       {type === 'prompt' ? 'Prompt' : 'Skill'}
     </span>
+  )
+}
+
+async function copyTextToClipboard(text: string) {
+  if (!text) return false
+
+  if (typeof navigator !== 'undefined' && navigator.clipboard?.writeText) {
+    try {
+      await navigator.clipboard.writeText(text)
+      return true
+    } catch {
+      // Fall through to a legacy fallback when Clipboard API is unavailable or blocked.
+    }
+  }
+
+  if (typeof document === 'undefined') return false
+
+  const textarea = document.createElement('textarea')
+  textarea.value = text
+  textarea.setAttribute('readonly', '')
+  textarea.style.position = 'absolute'
+  textarea.style.left = '-9999px'
+  document.body.appendChild(textarea)
+  textarea.select()
+  const copied = document.execCommand('copy')
+  document.body.removeChild(textarea)
+  return copied
+}
+
+function CopyContentButton({
+  value,
+  copied,
+  onCopy,
+}: {
+  value: string
+  copied: boolean
+  onCopy: (value: string) => void
+}) {
+  return (
+    <button
+      type="button"
+      onClick={() => onCopy(value)}
+      disabled={!value}
+      className={cn(
+        'inline-flex items-center gap-1 rounded-md border px-2 py-1 text-xs transition-colors',
+        value
+          ? 'border-[var(--border-muted)] bg-white text-slate-600 hover:bg-[var(--surface-subtle)] hover:text-slate-900'
+          : 'cursor-not-allowed border-[var(--border-muted)] bg-slate-100 text-slate-400'
+      )}
+    >
+      {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+      {copied ? 'Copied' : 'Copy'}
+    </button>
   )
 }
 
@@ -106,11 +161,24 @@ function OverviewTab({ asset }: { asset: Asset }) {
 }
 
 function ContentTab({ asset }: { asset: Asset }) {
+  const [copied, setCopied] = useState(false)
+
+  const handleCopy = async (value: string) => {
+    const didCopy = await copyTextToClipboard(value)
+    if (!didCopy) return
+
+    setCopied(true)
+    window.setTimeout(() => setCopied(false), 1500)
+  }
+
   return (
     <section className="rounded-[14px] border border-[var(--border-muted)] bg-white p-5">
       <div className="mb-3 flex items-center justify-between">
         <h2 className="text-sm font-semibold text-slate-900">Content</h2>
-        <span className="text-xs text-slate-400">{asset.type === 'prompt' ? 'Prompt body' : 'Skill manifest'}</span>
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-slate-400">{asset.type === 'prompt' ? 'Prompt body' : 'Skill manifest'}</span>
+          {asset.type === 'prompt' && <CopyContentButton value={asset.content} copied={copied} onCopy={handleCopy} />}
+        </div>
       </div>
       <pre className="min-h-[440px] overflow-auto rounded-xl border border-[var(--border-muted)] bg-[var(--surface-subtle)] p-4 text-xs leading-6 text-slate-700 whitespace-pre-wrap">
         {asset.content || 'No content provided.'}
@@ -122,6 +190,7 @@ function ContentTab({ asset }: { asset: Asset }) {
 function VersionsTab({ asset }: { asset: Asset }) {
   const shouldLoadPromptVersions = asset.type === 'prompt'
   const { data: versions = [], isLoading } = usePromptVersions(shouldLoadPromptVersions ? asset.id : null)
+  const [copiedId, setCopiedId] = useState<string | null>(null)
 
   const currentVersionCard = useMemo(
     () => ({
@@ -132,6 +201,16 @@ function VersionsTab({ asset }: { asset: Asset }) {
     }),
     [asset.content, asset.id, asset.updatedAt, asset.version]
   )
+
+  const handleCopy = async (id: string, value: string) => {
+    const didCopy = await copyTextToClipboard(value)
+    if (!didCopy) return
+
+    setCopiedId(id)
+    window.setTimeout(() => {
+      setCopiedId((previous) => (previous === id ? null : previous))
+    }, 1500)
+  }
 
   if (asset.type !== 'prompt') {
     return (
@@ -160,7 +239,14 @@ function VersionsTab({ asset }: { asset: Asset }) {
         <div className="rounded-xl border border-[var(--border-muted)] bg-[var(--surface-subtle)] p-4">
           <div className="flex items-center justify-between text-sm">
             <span className="font-semibold text-slate-900">Current v{currentVersionCard.version}</span>
-            <span className="text-xs text-slate-500">{formatDateLabel(currentVersionCard.savedAt)}</span>
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-slate-500">{formatDateLabel(currentVersionCard.savedAt)}</span>
+              <CopyContentButton
+                value={currentVersionCard.content}
+                copied={copiedId === currentVersionCard.id}
+                onCopy={(value) => handleCopy(currentVersionCard.id, value)}
+              />
+            </div>
           </div>
           <p className="line-clamp-4 mt-2 text-xs text-slate-600">{currentVersionCard.content || 'No content available.'}</p>
         </div>
@@ -178,7 +264,14 @@ function VersionsTab({ asset }: { asset: Asset }) {
             <div key={version.id} className="rounded-xl border border-[var(--border-muted)] bg-white p-4">
               <div className="flex items-center justify-between text-sm">
                 <span className="font-medium text-slate-900">v{version.version}</span>
-                <span className="text-xs text-slate-500">{formatDateLabel(version.savedAt)}</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-slate-500">{formatDateLabel(version.savedAt)}</span>
+                  <CopyContentButton
+                    value={version.content}
+                    copied={copiedId === version.id}
+                    onCopy={(value) => handleCopy(version.id, value)}
+                  />
+                </div>
               </div>
               <p className="line-clamp-4 mt-2 text-xs text-slate-600">{version.content || 'No content available.'}</p>
             </div>
